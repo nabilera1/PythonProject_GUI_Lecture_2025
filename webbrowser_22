@@ -1,0 +1,50 @@
+import wx
+import webbrowser
+
+class BrowserLauncher(wx.Frame):
+    def __init__(self):
+        super().__init__(parent=None, title='웹 브라우저 런처', size=(500, 300))
+        panel = wx.Panel(self)
+
+        # Layout
+        main_sizer = wx.BoxSizer(wx.VERTICAL)
+
+        # URL 입력창
+        self.url_input = wx.TextCtrl(panel, value='https://www.naver.com', style=wx.TE_PROCESS_ENTER)
+        self.url_input.Bind(wx.EVT_TEXT_ENTER, self.on_open_url)
+        main_sizer.Add(self.url_input, 0, wx.EXPAND | wx.ALL, 10)
+
+        # 버튼
+        open_btn = wx.Button(panel, label='웹 열기')
+        open_btn.Bind(wx.EVT_BUTTON, self.on_open_url)
+        main_sizer.Add(open_btn, 0, wx.ALL | wx.CENTER, 5)
+
+        # 히스토리 리스트
+        self.history_list = wx.ListBox(panel)
+        self.history_list.Bind(wx.EVT_LISTBOX_DCLICK, self.on_select_history)
+        main_sizer.Add(self.history_list, 1, wx.EXPAND | wx.ALL, 10)
+
+        panel.SetSizer(main_sizer)
+        self.history = []
+
+        self.Centre()
+        self.Show()
+
+    def on_open_url(self, event):
+        url = self.url_input.GetValue().strip()
+        if url:
+            webbrowser.open(url)
+            if url not in self.history:
+                self.history.append(url)
+                self.history_list.InsertItems([url], 0)
+
+    def on_select_history(self, event):
+        selected_url = self.history_list.GetStringSelection()
+        if selected_url:
+            self.url_input.SetValue(selected_url)
+            webbrowser.open(selected_url)
+
+if __name__ == '__main__':
+    app = wx.App(False)
+    frame = BrowserLauncher()
+    app.MainLoop()
